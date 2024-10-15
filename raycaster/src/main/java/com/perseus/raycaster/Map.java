@@ -52,4 +52,16 @@ public class Map {
     public int getHeight() {
         return layout.length;
     }
+
+    // Get the type of tile at a specific (x, y) coordinate
+    public int getTile(int x, int y) {
+        if (x < 0 || y < 0 || x >= layout.length || y >= layout[0].length) {
+            return -1; // Return -1 for out of bounds (error or no tile)
+        }
+        return layout[x][y]; // Return the tile type (e.g., 1 for a wall)
+    }
+
+    public int getTileSize() {
+        return TILE_SIZE;
+    }
 }

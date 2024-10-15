@@ -4,7 +4,7 @@ public class Player {
     private double x, y; // Player's position
     private double angle; // Player's viewing angle
     private final double speed = 2; // Movement speed
-    private final double rotationSpeed = Math.toRadians(2); // Rotation speed
+    private final double rotationSpeed = Math.toRadians(1); // Rotation speed
 
     public Player(double x, double y, double angle) {
         this.x = x;

@@ -10,7 +10,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
+import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,13 +19,16 @@ public class Raycaster extends Application {
 
     private final int WIDTH = 700; // Width of the window
     private final int HEIGHT = 500; // Height of the window
-    private final int FOV = 90;
-    private final int TILE_SIZE = 50; // Size of a map tile
+    private final int FOV = 60;
+    private final int TILE_SIZE = 100; // Size of a map tile
 
     private Canvas canvas; // Canvas for rendering
     private Player player; // Player instance
     private Map map; // Map instance
     private final Set<KeyCode> keysPressed = new HashSet<>(); // To track pressed keys
+
+    private Image wallTexture; // Wall texture image
+    private PixelReader pixelReader; // PixelReader for the wall texture
 
     @Override
     public void start(Stage primaryStage) {
@@ -36,13 +40,17 @@ public class Raycaster extends Application {
 
         // Initialize the map (example layout)
         int[][] layout = {
-            {1, 1, 1, 1, 1, 1, 1},
-            {1, 0, 0, 0, 0, 0, 1},
-            {1, 0, 1, 1, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 1},
-            {1, 1, 1, 1, 1, 1, 1}
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+            {1, 0, 1, 1, 0, 0, 0, 1, 0, 1},
+            {1, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
         };
         map = new Map(layout);
+
+        // Load the wall texture and create a PixelReader
+        wallTexture = new Image(getClass().getResourceAsStream("/com/perseus/raycaster/textures/wall_texture.png"));
+        pixelReader = wallTexture.getPixelReader();
 
         // Animation Timer for rendering
         new AnimationTimer() {
@@ -85,38 +93,57 @@ public class Raycaster extends Application {
 
     private void render(GraphicsContext gc) {
         gc.clearRect(0, 0, WIDTH, HEIGHT); // Clear the canvas
-        castRays(gc); // Render the 3D view using raycasting
+
+        // Set the color for the sky (top half)
+        gc.setFill(Color.web("#393939")); // Replace with your desired sky color
+        gc.fillRect(0, 0, WIDTH, HEIGHT / 2); // Fill the top half with sky color
+
+        // Set the color for the ground (bottom half)
+        gc.setFill(Color.web("#717171")); // Replace with your desired ground color
+        gc.fillRect(0, HEIGHT / 2, WIDTH, HEIGHT / 2); // Fill the bottom half with ground color
+
+        // Now render the 3D walls using raycasting
+        castRays(gc);
     }
 
     private void castRays(GraphicsContext gc) {
         double rayAngle;
         double rayStep = Math.toRadians(FOV) / WIDTH;  // Adjust for FOV
-    
-        for (int x = 0; x < WIDTH; x++) {
+        int pixelSize = 1;
+
+        for (int x = 0; x < WIDTH; x += pixelSize) {
             rayAngle = player.getAngle() - Math.toRadians(FOV / 2) + x * rayStep;
             Ray ray = new Ray(rayAngle);
             ray.cast(map, player);
-            
-            // Calculate distance and fix fisheye
+    
+            // Calculate distance to the wall and correct for fisheye effect
             double distance = ray.getDistance() * Math.cos(rayAngle - player.getAngle());
     
-            // Calculate wall slice height
+            // Calculate wall height
             double wallHeight = (TILE_SIZE / distance) * 400;
     
-            // Clamp the distance value to avoid illegal Color values
-            // Set a minimum distance to prevent division by zero
-            double clampedDistance = Math.max(distance, 0.1); // Avoid 0 distance
-
-        // Calculate shading based on the corrected distance
-        double colorValue = Math.min(1.0 / (clampedDistance / 100), 0.8); // Set a maximum brightness of 0.8
-
-        // Draw the wall slice
-        gc.setFill(Color.gray(colorValue)); // Shading based on distance
-        gc.fillRect(x, (HEIGHT / 2) - (wallHeight / 2), 1, wallHeight);
+            // Calculate texture coordinates based on hit position
+            int texX = (int) ray.getWallHitX();
+            texX = Math.min(texX, (int) wallTexture.getWidth() - 1); // Ensure texX is within bounds
+            
+            // Loop through the height of the wall slice
+            for (int y = 0; y < wallHeight; y++) {
+                double drawY = (HEIGHT / 2) - (wallHeight / 2) + y; // Calculate y position to draw
+                
+                if (drawY >= 0 && drawY < HEIGHT) { // Check bounds
+                    // Calculate texture Y coordinate
+                    int texY = (int) ((y / wallHeight) * wallTexture.getHeight());
+                    texY = Math.min(texY, (int) wallTexture.getHeight() - 1); // Ensure texY is within bounds
+                    
+                    // Get color from texture
+                    Color color = pixelReader.getColor(texX, texY);
+                    
+                    // Set the pixel color to the canvas
+                    gc.getPixelWriter().setColor(x, (int) Math.floor(drawY), color);
+                }
+            }
+        }
     }
-}
-
-
 
     public static void main(String[] args) {
         launch(args);

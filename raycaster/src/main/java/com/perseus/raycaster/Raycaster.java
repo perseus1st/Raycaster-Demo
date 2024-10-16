@@ -123,7 +123,9 @@ public class Raycaster extends Application {
             double wallHeight = (TILE_SIZE / distance) * 400;
     
             // Calculate texture coordinates based on hit position
-            int texX = (int) ray.getWallHitX();
+
+            // if there has been a vertical wall hit, use the y coordinate of the hit, else, x
+            int texX = ray.getVerticalHit() ? (int) ray.getWallHitY() : (int) ray.getWallHitX();
             texX = Math.min(texX, (int) wallTexture.getWidth() - 1); // Ensure texX is within bounds
             
             // Loop through the height of the wall slice

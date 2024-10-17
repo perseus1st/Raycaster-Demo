@@ -109,8 +109,8 @@ public class Raycaster extends Application {
     private void castRays(GraphicsContext gc) {
         double rayAngle;
         double rayStep = Math.toRadians(FOV) / WIDTH;  // Adjust for FOV
-        int pixelSize = 1;
-
+        int pixelSize = 8;  // Cast rays every 8 pixels for pixelation effect
+    
         for (int x = 0; x < WIDTH; x += pixelSize) {
             rayAngle = player.getAngle() - Math.toRadians(FOV / 2) + x * rayStep;
             Ray ray = new Ray(rayAngle);
@@ -123,29 +123,29 @@ public class Raycaster extends Application {
             double wallHeight = (TILE_SIZE / distance) * 400;
     
             // Calculate texture coordinates based on hit position
-
-            // if there has been a vertical wall hit, use the y coordinate of the hit, else, x
             int texX = ray.getVerticalHit() ? (int) ray.getWallHitY() : (int) ray.getWallHitX();
             texX = Math.min(texX, (int) wallTexture.getWidth() - 1); // Ensure texX is within bounds
-            
-            // Loop through the height of the wall slice
+    
+            // Draw a rectangle 8 pixels wide instead of a single pixel-wide line
             for (int y = 0; y < wallHeight; y++) {
                 double drawY = (HEIGHT / 2) - (wallHeight / 2) + y; // Calculate y position to draw
-                
+    
                 if (drawY >= 0 && drawY < HEIGHT) { // Check bounds
                     // Calculate texture Y coordinate
                     int texY = (int) ((y / wallHeight) * wallTexture.getHeight());
                     texY = Math.min(texY, (int) wallTexture.getHeight() - 1); // Ensure texY is within bounds
-                    
+    
                     // Get color from texture
                     Color color = pixelReader.getColor(texX, texY);
-                    
-                    // Set the pixel color to the canvas
-                    gc.getPixelWriter().setColor(x, (int) Math.floor(drawY), color);
+    
+                    // Draw a wider rectangle to cover pixelSize width
+                    gc.setFill(color);
+                    gc.fillRect(x, (int) Math.floor(drawY), pixelSize, 1); // Draw a rectangle for the pixelation effect
                 }
             }
         }
     }
+    
 
     public static void main(String[] args) {
         launch(args);

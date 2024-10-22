@@ -111,6 +111,8 @@ public class Raycaster extends Application {
         double rayStep = Math.toRadians(FOV) / WIDTH;  // Adjust for FOV
         int pixelSize = 4;  // Cast rays every 8 pixels for pixelation effect
     
+        double yOffset = player.getAnimationOffset();
+        
         for (int x = 0; x < WIDTH; x += pixelSize) {
             rayAngle = player.getAngle() - Math.toRadians(FOV / 2) + x * rayStep;
             Ray ray = new Ray(rayAngle);
@@ -128,7 +130,7 @@ public class Raycaster extends Application {
     
             // Draw a rectangle 8 pixels wide instead of a single pixel-wide line
             for (int y = 0; y < wallHeight; y++) {
-                double drawY = (HEIGHT / 2) - (wallHeight / 2) + y; // Calculate y position to draw
+                double drawY = (HEIGHT / 2) - (wallHeight / 2) + y + yOffset; // Calculate y position to draw
     
                 if (drawY >= 0 && drawY < HEIGHT) { // Check bounds
                     // Calculate texture Y coordinate

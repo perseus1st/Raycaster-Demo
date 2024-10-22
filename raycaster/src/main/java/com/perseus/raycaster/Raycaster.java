@@ -109,7 +109,7 @@ public class Raycaster extends Application {
     private void castRays(GraphicsContext gc) {
         double rayAngle;
         double rayStep = Math.toRadians(FOV) / WIDTH;  // Adjust for FOV
-        int pixelSize = 8;  // Cast rays every 8 pixels for pixelation effect
+        int pixelSize = 4;  // Cast rays every 8 pixels for pixelation effect
     
         for (int x = 0; x < WIDTH; x += pixelSize) {
             rayAngle = player.getAngle() - Math.toRadians(FOV / 2) + x * rayStep;
@@ -144,8 +144,7 @@ public class Raycaster extends Application {
                 }
             }
         }
-    }
-    
+    }  
 
     public static void main(String[] args) {
         launch(args);

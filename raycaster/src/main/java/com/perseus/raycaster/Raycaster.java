@@ -102,14 +102,14 @@ public class Raycaster extends Application {
         gc.setFill(Color.web("#717171")); // Replace with your desired ground color
         gc.fillRect(0, HEIGHT / 2, WIDTH, HEIGHT / 2); // Fill the bottom half with ground color
 
-        // Now render the 3D walls using raycasting
+        // Render the 3D walls using raycasting
         castRays(gc);
     }
 
     private void castRays(GraphicsContext gc) {
         double rayAngle;
         double rayStep = Math.toRadians(FOV) / WIDTH;  // Adjust for FOV
-        int pixelSize = 4;  // Cast rays every 8 pixels for pixelation effect
+        int pixelSize = 4;  // Cast rays every 4 pixels for pixelation effect
     
         double yOffset = player.getAnimationOffset();
         
@@ -140,7 +140,7 @@ public class Raycaster extends Application {
                     // Get color from texture
                     Color color = pixelReader.getColor(texX, texY);
     
-                    // Draw a wider rectangle to cover pixelSize width
+                    // Draw a wider rectangle to cover pixelSize width for efficiency and pixelation effect
                     gc.setFill(color);
                     gc.fillRect(x, (int) Math.floor(drawY), pixelSize, 1); // Draw a rectangle for the pixelation effect
                 }

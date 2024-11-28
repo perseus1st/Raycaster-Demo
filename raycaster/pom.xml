@@ -49,7 +49,7 @@
                 <execution>
                     <id>default-cli</id>
                     <configuration>
-                        <mainClass>com.perseus.raycaster.Raycaster</mainClass>
+                        <mainClass>com.perseus.raycaster.Main</mainClass>
                     </configuration>
                 </execution>
             </executions>

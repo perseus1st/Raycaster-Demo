@@ -1,0 +1,42 @@
+/* Style the root container (StackPane or any parent layout) */
+.root {
+    -fx-background-color: #2c3e50; /* Dark background */
+    -fx-padding: 20px;
+}
+
+/* Style the title */
+.title {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ecf0f1; /* Light gray color */
+    -fx-padding: 20px;
+    -fx-alignment: center;
+}
+
+/* Style for the buttons */
+.button {
+    -fx-background-color: #808080; /* Blue background */
+    -fx-text-fill: white; /* White text */
+    -fx-font-size: 18px;
+    -fx-padding: 10px 20px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0, 2, 2);
+}
+
+/* Hover effect for buttons */
+.button:hover {
+    -fx-background-color: #a0a0a0; /* Lighter blue on hover */
+    -fx-cursor: hand;
+}
+
+/* Pressed effect for buttons */
+.button:pressed {
+    -fx-background-color: #505050; /* Darker blue when pressed */
+}
+
+/* Add spacing between buttons */
+.button-container {
+    -fx-spacing: 10px;
+    -fx-alignment: center;
+}

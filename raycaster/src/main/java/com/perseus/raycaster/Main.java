@@ -1,10 +1,14 @@
 package com.perseus.raycaster;
 
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Polygon;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -12,53 +16,102 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Create title
-        Text title = new Text("Raycaster Game");
-        title.getStyleClass().add("title"); // Apply title style from CSS
 
-        // Create "Play Level" button
+        Text title = new Text("Raycaster v2");
+        title.getStyleClass().add("title");
+        title.setFill(Color.LIME);
+
         Button playButton = new Button("Play Level");
-        playButton.getStyleClass().add("button"); // Apply button style from CSS
-        playButton.setOnAction(e -> startGame(primaryStage)); // Action for play button
+        playButton.getStyleClass().add("button");
+        playButton.setOnAction(e -> startGame(primaryStage));
 
-        // Create "Create Level" button
         Button createButton = new Button("Create Level");
-        createButton.getStyleClass().add("button"); // Apply button style from CSS
-        createButton.setOnAction(e -> createLevel()); // Action for create button
+        createButton.getStyleClass().add("button");
+        createButton.setOnAction(e -> createLevel());
 
-        // VBox layout for stacking buttons and title
-        VBox menuLayout = new VBox(20); // 20px spacing between elements
-        menuLayout.setAlignment(javafx.geometry.Pos.CENTER); // Center all items
-        menuLayout.getChildren().addAll(title, playButton, createButton);
+        Button helpButton = new Button("Help");
+        helpButton.getStyleClass().add("button");
+        helpButton.setOnAction(e -> help());
+                
+        Polygon trapezoid1Highlight = new Polygon();
+        trapezoid1Highlight.getPoints().addAll(
+            -2.0,  19.0,  // Top-left corner
+            102.0, -2.0,  // Top-right corner
+            102.0, 102.0, // Bottom-right corner
+            -2.0,  81.0   // Bottom-left corner
+        );
+        trapezoid1Highlight.setFill(Color.LIME);
 
-        // Set the root layout container (StackPane) to hold the VBox layout
+        Polygon trapezoid1 = new Polygon();
+        trapezoid1.getPoints().addAll(
+            0.0,  20.0, 
+            100.0,  0.0, 
+            100.0, 100.0, 
+            0.0,  80.0
+        );
+        trapezoid1.setFill(Color.BLACK);
+
+        StackPane trapezoid1Stack = new StackPane(trapezoid1Highlight, trapezoid1);
+
+        Polygon trapezoid2Highlight = new Polygon();
+        trapezoid2Highlight.getPoints().addAll(
+            -2.0, -2.0,   // Top-left corner
+            102.0,  19.0, // Top-right corner
+            102.0,  81.0, // Bottom-right corner
+            -2.0, 102.0   // Bottom-left corner
+        );
+        trapezoid2Highlight.setFill(Color.LIME);
+
+        Polygon trapezoid2 = new Polygon();
+        trapezoid2.getPoints().addAll(
+            0.0,  0.0,
+            100.0,  20.0,
+            100.0,  80.0,
+            0.0,  100.0
+        );
+        trapezoid2.setFill(Color.BLACK);
+
+        StackPane trapezoid2Stack = new StackPane(trapezoid2Highlight, trapezoid2);
+
+        HBox trapezoidContainer = new HBox(0);
+        trapezoidContainer.setAlignment(Pos.CENTER);
+        trapezoidContainer.getChildren().addAll(trapezoid1Stack, trapezoid2Stack);
+
+        
+        
+        VBox menuLayout = new VBox(15);
+        menuLayout.setAlignment(Pos.TOP_CENTER);
+        menuLayout.getChildren().addAll(title, playButton, createButton, helpButton, trapezoidContainer);
+
+
         StackPane root = new StackPane(menuLayout);
 
-        // Create the scene and apply the CSS stylesheet
-        Scene scene = new Scene(root, 600, 400);
-        scene.getStylesheets().add(getClass().getResource("/com/perseus/raycaster/style.css").toExternalForm()); // Link to the CSS file
+        Scene scene = new Scene(root, 700, 500);
+        scene.getStylesheets().add(getClass().getResource("/com/perseus/raycaster/style.css").toExternalForm());
 
-        // Set the scene to the primary stage and show the window
-        primaryStage.setTitle("Main Menu");
+
+        primaryStage.setTitle("Raycaster_v2");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-    // This method will be called when "Play Level" is clicked
     private void startGame(Stage primaryStage) {
-        // Launch the Raycaster game scene
         Raycaster raycaster = new Raycaster();
         try {
-            raycaster.start(primaryStage);  // Start the Raycaster game scene
+            raycaster.start(primaryStage);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // This method will be called when "Create Level" is clicked
     private void createLevel() {
-        // Your code for level creation logic or screen transition
+        // code for level creator
         System.out.println("Creating Level...");
+    }
+    
+    private void help() {
+    	// code to "help"
+    	System.out.println("Helping...");
     }
 
     public static void main(String[] args) {

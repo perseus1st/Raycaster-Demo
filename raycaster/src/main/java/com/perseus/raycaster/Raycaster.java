@@ -79,10 +79,10 @@ public class Raycaster extends Application {
     }
 
     private void updateMovement() {
-        if (keysPressed.contains(KeyCode.W)) player.moveForward(map);
-        if (keysPressed.contains(KeyCode.S)) player.moveBackward(map);
-        if (keysPressed.contains(KeyCode.A)) player.rotateLeft();
-        if (keysPressed.contains(KeyCode.D)) player.rotateRight();
+        if (keysPressed.contains(KeyCode.W) || (keysPressed.contains(KeyCode.UP))) player.moveForward(map);
+        if (keysPressed.contains(KeyCode.S) || (keysPressed.contains(KeyCode.DOWN))) player.moveBackward(map);
+        if (keysPressed.contains(KeyCode.A) || (keysPressed.contains(KeyCode.LEFT))) player.rotateLeft();
+        if (keysPressed.contains(KeyCode.D) || (keysPressed.contains(KeyCode.RIGHT))) player.rotateRight();
     }
 
     private void render(GraphicsContext gc) {

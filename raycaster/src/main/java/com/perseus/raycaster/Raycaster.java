@@ -17,8 +17,8 @@ import java.util.Set;
 
 public class Raycaster extends Application {
 
-    private final int WIDTH = 700;
-    private final int HEIGHT = 500; 
+    private final int WIDTH = 750;
+    private final int HEIGHT = 550; 
     private final int FOV = 60;
     private final int TILE_SIZE = 100;
     private final int WALL_HEIGHT_MULTIPLIER = (HEIGHT*4)/5;

@@ -6,8 +6,8 @@
     <version>1.0-SNAPSHOT</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>16</maven.compiler.source> <!-- Change to 16 -->
+        <maven.compiler.target>16</maven.compiler.target> <!-- Change to 16 -->
     </properties>
     <dependencies>
         <dependency>
@@ -38,7 +38,7 @@
             <artifactId>maven-compiler-plugin</artifactId>
             <version>3.8.0</version>
             <configuration>
-                <release>11</release>
+                <release>16</release> <!-- Change to 16 -->
             </configuration>
         </plugin>
         <plugin>

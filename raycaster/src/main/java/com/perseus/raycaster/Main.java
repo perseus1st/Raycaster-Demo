@@ -27,7 +27,7 @@ public class Main extends Application {
 
         Button createButton = new Button("Create Level");
         createButton.getStyleClass().add("button");
-        createButton.setOnAction(e -> createLevel());
+        createButton.setOnAction(e -> createLevel(primaryStage));
 
         Button helpButton = new Button("Help");
         helpButton.getStyleClass().add("button");
@@ -86,10 +86,11 @@ public class Main extends Application {
 
         StackPane root = new StackPane(menuLayout);
 
-        Scene scene = new Scene(root, 700, 500);
+        Scene scene = new Scene(root, 750, 500);
         scene.getStylesheets().add(getClass().getResource("/com/perseus/raycaster/style.css").toExternalForm());
 
-
+        primaryStage.setMinWidth(750);
+        primaryStage.setMinHeight(550);
         primaryStage.setTitle("Raycaster_v2");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -104,8 +105,10 @@ public class Main extends Application {
         }
     }
 
-    private void createLevel() {
-        // code for level creator
+    private void createLevel(Stage primaryStage) {
+        LevelCreator levelCreator = new LevelCreator();
+        Scene levelCreatorScene = levelCreator.createScene(primaryStage);
+        primaryStage.setScene(levelCreatorScene);
         System.out.println("Creating Level...");
     }
     

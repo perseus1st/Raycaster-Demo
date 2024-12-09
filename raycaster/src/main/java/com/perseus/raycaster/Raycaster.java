@@ -53,7 +53,7 @@ public class Raycaster extends Application {
         new AnimationTimer() {
             @Override
             public void handle(long now) {
-                updateMovement();
+                updateMovement(primaryStage);
                 render(gc);
             }
         }.start();
@@ -78,11 +78,12 @@ public class Raycaster extends Application {
         keysPressed.remove(event.getCode());
     }
 
-    private void updateMovement() {
+    private void updateMovement(Stage primaryStage) {
         if (keysPressed.contains(KeyCode.W) || (keysPressed.contains(KeyCode.UP))) player.moveForward(map);
         if (keysPressed.contains(KeyCode.S) || (keysPressed.contains(KeyCode.DOWN))) player.moveBackward(map);
         if (keysPressed.contains(KeyCode.A) || (keysPressed.contains(KeyCode.LEFT))) player.rotateLeft();
         if (keysPressed.contains(KeyCode.D) || (keysPressed.contains(KeyCode.RIGHT))) player.rotateRight();
+        if (keysPressed.contains(KeyCode.ESCAPE)) returnToMenu(primaryStage);
     }
 
     private void render(GraphicsContext gc) {
@@ -130,5 +131,14 @@ public class Raycaster extends Application {
                 }
             }
         }
-    }  
+    }
+    
+    private void returnToMenu(Stage primaryStage) {
+        Main mainMenu = new Main();
+        try {
+            mainMenu.start(primaryStage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

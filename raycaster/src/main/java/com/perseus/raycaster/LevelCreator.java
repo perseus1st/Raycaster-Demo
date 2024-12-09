@@ -13,10 +13,13 @@ public class LevelCreator {
 
     private static final int WINDOW_WIDTH = 750;
     private static final int WINDOW_HEIGHT = 550;
-    private static final int GRID_SIZE = 10; // n x n grid
+    private static int GRID_SIZE = 10; // n x n grid
     private static final int CELL_SIZE = 400 / GRID_SIZE;
     private static final int PADDING = 10;
-
+    
+    private int playerRotation = 0;
+    
+    private int brush = 1;
     private Pane gridPane;
     private int[][] gridData = new int[GRID_SIZE][GRID_SIZE]; // 2D array of n x n dimensions
 
@@ -40,16 +43,34 @@ public class LevelCreator {
         RadioButton coloredTileBrush = new RadioButton("Colored Tile");
         RadioButton startPointBrush = new RadioButton("Start Point");
         RadioButton endPointBrush = new RadioButton("End Point");
+        
         styleRadioButton(emptyTileBrush);
         styleRadioButton(coloredTileBrush);
         styleRadioButton(startPointBrush);
         styleRadioButton(endPointBrush);
+        
         emptyTileBrush.setToggleGroup(brushGroup);
         coloredTileBrush.setToggleGroup(brushGroup);
         startPointBrush.setToggleGroup(brushGroup);
         endPointBrush.setToggleGroup(brushGroup);
+        
+        // Default brush
         coloredTileBrush.setSelected(true);
-
+        brush = 1;
+        
+        brushGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+        	if (newValue == emptyTileBrush) {
+        		brush = 0;
+        	} else if (newValue == coloredTileBrush) {
+        		brush = 1;
+        	} else if (newValue == startPointBrush) {
+        		brush = 2;
+        	} else if (newValue == endPointBrush) {
+        		brush = 3;
+        	}
+        	System.out.println("Brush switched to: " + brush); // Debugging
+        });
+        
         // Grid Size Section
         Label gridSizeLabel = new Label("Grid Size");
         styleLabel(gridSizeLabel);
@@ -65,27 +86,45 @@ public class LevelCreator {
             String input = gridSizeInput.getText();
             try {
                 int newSize = Integer.parseInt(input);
-                if (newSize > 0 && newSize <= 100) {
+                if (newSize > 1 && newSize <= 50) { // Ensure the size is within a valid range
                     System.out.println("Grid size updated to: " + newSize);
+                    
+                    // Update GRID_SIZE and recreate gridData
+                    GRID_SIZE = newSize;
+                    gridData = new int[GRID_SIZE][GRID_SIZE]; // Reset the grid data
+
+                    // Clear existing grid and recreate it
+                    gridPane.getChildren().clear();
+                    createGrid(gridPane);
+
+                    // Update cell size dynamically
+                    updateGridSize(gridPane, gridPane.getScene());
                 } else {
-                    System.out.println("Invalid grid size. Must be 1-100.");
+                    System.out.println("Invalid grid size. Must be 2-50.");
                 }
             } catch (NumberFormatException ex) {
                 System.out.println("Invalid input. Please enter a number.");
             }
         });
 
+
         // Player Orientation Section
         Label orientationLabel = new Label("Player Orientation");
         styleLabel(orientationLabel);
         Spinner<Integer> orientationSpinner = new Spinner<>(0, 360, 0, 15);
         orientationSpinner.setPrefWidth(100);
-        Tooltip.install(orientationSpinner, new Tooltip("Set the player's initial facing direction (in degrees)."));
+        Tooltip.install(orientationSpinner, new Tooltip("Set the player's initial facing direction from east (in degrees)."));
 
+        orientationSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+            playerRotation = newValue; // Update playerRotation when spinner value changes
+            System.out.println("Player rotation updated to: " + playerRotation); // Debugging line
+        });
+        
+        
         // Reset Button
         Button resetButton = new Button("Reset");
         resetButton.setPrefWidth(180);
-        resetButton.setPrefHeight(38);        
+        resetButton.setPrefHeight(38);
         resetButton.setStyle("-fx-background-color: black; -fx-text-fill: firebrick; -fx-border-color: firebrick; -fx-border-width: 2px;");
         resetButton.setOnMouseEntered(e -> resetButton.setStyle("-fx-background-color: firebrick; -fx-text-fill: black; -fx-border-color: firebrick;"));
         resetButton.setOnMouseExited(e -> resetButton.setStyle("-fx-background-color: black; -fx-text-fill: firebrick; -fx-border-color: firebrick;"));
@@ -194,9 +233,17 @@ public class LevelCreator {
     }
 
     private void lightUpCell(Rectangle cell, int row, int col) {
-        if (gridData[row][col] != 1) {
-            gridData[row][col] = 1;
-            cell.setFill(Color.LIMEGREEN);
+        if (gridData[row][col] != brush) {
+            gridData[row][col] = brush;
+            if (brush == 0) {
+            	cell.setFill(Color.BLACK);
+            } else if (brush == 1) {
+                cell.setFill(Color.LIMEGREEN);
+            } else if (brush == 2) {
+            	cell.setFill(Color.GREEN);
+            } else if (brush == 3) {
+            	cell.setFill(Color.RED);
+            }
         }
     }
 
@@ -238,7 +285,16 @@ public class LevelCreator {
     
     private void exportGrid() {
     	System.out.println("EXPORTING...");
-    	// TODO ADD EXPORT
+        // Reset the grid data to empty
+    	System.out.println("Grid size: " + GRID_SIZE + "x" + GRID_SIZE);
+    	System.out.println("Player rotation: " + playerRotation);
+        for (int row = 0; row < GRID_SIZE; row++) {
+        	String debugPrint = "";
+            for (int col = 0; col < GRID_SIZE; col++) {
+                debugPrint += gridData[row][col] + " ";
+            }
+            System.out.println(debugPrint);
+        }
     }
 
     private void returnToMenu(Stage primaryStage) {

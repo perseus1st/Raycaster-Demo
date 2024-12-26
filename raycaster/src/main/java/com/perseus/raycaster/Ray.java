@@ -16,7 +16,7 @@ public class Ray {
         double y = player.getY();
         int xbefore = 0;
 
-        double rayStepSize = 0.1;
+        double rayStepSize = 1;
 
         while (!map.isWall((int) x, (int) y)) {
             xbefore = (int) Math.floor(x / Map.TILE_SIZE);

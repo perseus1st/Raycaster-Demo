@@ -39,6 +39,8 @@ public class Raycaster extends Application {
 	private Image wallTexture;
 	private PixelReader pixelReader;
 
+	private AnimationTimer timer;
+
 	@Override
 	public void start(Stage primaryStage) {
 		canvas = new Canvas(WIDTH, HEIGHT);
@@ -47,16 +49,17 @@ public class Raycaster extends Application {
 		loadLevelData(); // Load level data from XML
 
 		wallTexture = new Image(
-				getClass().getResourceAsStream("/com/perseus/raycaster/textures/cool_wall_texture.png"));
+				getClass().getResourceAsStream("/com/perseus/raycaster/textures/wall_texture.png"));
 		pixelReader = wallTexture.getPixelReader();
 
-		new AnimationTimer() {
+		timer = new AnimationTimer() {
 			@Override
 			public void handle(long now) {
 				updateMovement(primaryStage);
 				render(gc);
 			}
-		}.start();
+		};
+		timer.start();
 
 		Scene scene = new Scene(new StackPane(canvas), WIDTH, HEIGHT);
 
@@ -109,8 +112,9 @@ public class Raycaster extends Application {
 		double rayAngle;
 		double rayStep = Math.toRadians(FOV) / WIDTH;
 		int pixelSize = WIDTH / 175;
-		 // The denominator represents how many rays will be cast, lower number = more pixelized
-		
+		// The denominator represents how many rays will be cast
+		// lower number = more pixelized
+
 		double yOffset = player.getAnimationOffset();
 
 		for (int x = 0; x < WIDTH; x += pixelSize) {
@@ -169,7 +173,7 @@ public class Raycaster extends Application {
 
 			int startCol = 0;
 			int startRow = 0;
-			
+
 			for (int i = 0; i < rowNodes.getLength(); i++) {
 				String rowText = rowNodes.item(i).getTextContent().trim();
 				String[] rowValues = rowText.split(" ");
@@ -189,29 +193,35 @@ public class Raycaster extends Application {
 
 			// Extracted data
 			map = new Map(mapData); // Initialize map with the parsed map data
-			player = new Player((startCol * TILE_SIZE + TILE_SIZE/2), (startRow * TILE_SIZE + TILE_SIZE/2), playerAngle); // Initialize player with the parsed angle
+			player = new Player((startCol * TILE_SIZE + TILE_SIZE / 2), (startRow * TILE_SIZE + TILE_SIZE / 2),
+					playerAngle); // Initialize player with the parsed angle
 
 			System.out.println("Level Data Loaded: ");
 			System.out.println("Grid Size: " + gridSize);
 			System.out.println("Player Angle: " + playerAngle);
 			System.out.println("startCol: " + startCol);
 			System.out.println("startRow: " + startRow);
-			System.out.println("startX: " + (startCol * TILE_SIZE + TILE_SIZE/2));
-			System.out.println("startRow: " + (startRow * TILE_SIZE + TILE_SIZE/2));
-			
+			System.out.println("startX: " + (startCol * TILE_SIZE + TILE_SIZE / 2));
+			System.out.println("startRow: " + (startRow * TILE_SIZE + TILE_SIZE / 2));
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void reloadLevelData() {
-	    loadLevelData();
-	    System.out.println("Level data reloaded.");
+		loadLevelData();
+		System.out.println("Level data reloaded.");
 	}
 
-
 	private void returnToMenu(Stage primaryStage) {
+		// The reason this return to menu did not work but the level creator one did is
+		// because raycaster uses an animation timer that never stops, which ended up
+		// holding the thread.
+		// This implementation releases the thread when returning to the menu.
+		if (timer != null) {
+			timer.stop();
+		}
 		Main mainMenu = new Main();
 		try {
 			mainMenu.start(primaryStage);

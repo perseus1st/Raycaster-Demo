@@ -36,8 +36,12 @@ public class Raycaster extends Application {
 	private Map map;
 	private final Set<KeyCode> keysPressed = new HashSet<>();
 
+	private byte wallTextureTracker = 2;
 	private Image wallTexture;
 	private PixelReader pixelReader;
+	
+	private String groundColor = "#717171";
+	private String skyColor = "#393939";
 
 	private AnimationTimer timer;
 
@@ -48,10 +52,8 @@ public class Raycaster extends Application {
 
 		loadLevelData(); // Load level data from XML
 
-		wallTexture = new Image(
-				getClass().getResourceAsStream("/com/perseus/raycaster/textures/wall_texture.png"));
-		pixelReader = wallTexture.getPixelReader();
-
+		switchWallTexture();
+		
 		timer = new AnimationTimer() {
 			@Override
 			public void handle(long now) {
@@ -94,15 +96,47 @@ public class Raycaster extends Application {
 			returnToMenu(primaryStage);
 		if (keysPressed.contains(KeyCode.R))
 			reloadLevelData();
+		if (keysPressed.contains(KeyCode.F)) {
+			keysPressed.remove(KeyCode.F);
+			switchWallTexture();
+		}
 	}
 
+	private void switchWallTexture() {
+		wallTextureTracker++;
+		if (wallTextureTracker > 3) {
+			wallTextureTracker = 1;
+		}
+		switch(wallTextureTracker) {
+		case 1:
+			wallTexture = new Image(
+					getClass().getResourceAsStream("/com/perseus/raycaster/textures/wall_texture.png"));
+			groundColor = "#717171";
+			skyColor = "#393939";
+			break;
+		case 2:
+			wallTexture = new Image(
+					getClass().getResourceAsStream("/com/perseus/raycaster/textures/cool_wall_texture.png"));
+			groundColor = "#000000";
+			skyColor = "#000000";
+			break;
+		case 3:
+			wallTexture = new Image(
+					getClass().getResourceAsStream("/com/perseus/raycaster/textures/backrooms.png"));
+			groundColor = "#AFA232";
+			skyColor = "#766B1B";
+			break;
+		}
+		pixelReader = wallTexture.getPixelReader();			
+	}
+	
 	private void render(GraphicsContext gc) {
 		gc.clearRect(0, 0, WIDTH, HEIGHT);
 
-		gc.setFill(Color.web("#000000")); // sky color
+		gc.setFill(Color.web(skyColor)); // sky color
 		gc.fillRect(0, 0, WIDTH, HEIGHT / 2);
 
-		gc.setFill(Color.web("#000000")); // ground color
+		gc.setFill(Color.web(groundColor)); // ground color
 		gc.fillRect(0, HEIGHT / 2, WIDTH, HEIGHT / 2);
 
 		castRays(gc);
@@ -146,68 +180,79 @@ public class Raycaster extends Application {
 	}
 
 	private void loadLevelData() {
-		try {
-			// Create a DocumentBuilderFactory
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder = factory.newDocumentBuilder();
+	    try {
+	        // Create a DocumentBuilderFactory
+	        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	        DocumentBuilder builder = factory.newDocumentBuilder();
 
-			// Load and parse the XML file
-			File file = new File("src/main/resources/com/perseus/raycaster/LevelData.xml");
-			// Must access directly from the file system instead of relying on classpath
-			Document document = builder.parse(file);
-			document.getDocumentElement().normalize(); // Normalize XML structure
+	        // Load and parse the XML file
+	        File file = new File("src/main/resources/com/perseus/raycaster/LevelData.xml");
+	        Document document = builder.parse(file);
+	        document.getDocumentElement().normalize(); // Normalize XML structure
 
-			// Extract grid size
-			NodeList gridSizeNode = document.getElementsByTagName("gridSize");
-			int gridSize = Integer.parseInt(gridSizeNode.item(0).getTextContent());
+	        // Extract grid size
+	        NodeList gridSizeNode = document.getElementsByTagName("gridSize");
+	        int gridSize = Integer.parseInt(gridSizeNode.item(0).getTextContent());
 
-			// Extract player angle
-			NodeList playerAngleNode = document.getElementsByTagName("playerAngle");
-			double playerAngle = Math.toRadians(Double.parseDouble(playerAngleNode.item(0).getTextContent()));
+	        // Extract player angle
+	        NodeList playerAngleNode = document.getElementsByTagName("playerAngle");
+	        double playerAngle = Math.toRadians(Double.parseDouble(playerAngleNode.item(0).getTextContent()));
 
-			// Extract map data
-			NodeList rowNodes = document.getElementsByTagName("row");
-			int[][] mapData = new int[rowNodes.getLength()][];
+	        // Extract map data
+	        NodeList rowNodes = document.getElementsByTagName("row");
+	        int originalRows = rowNodes.getLength();
+	        int originalCols = rowNodes.item(0).getTextContent().trim().split(" ").length;
 
-			System.out.println("Loading map data...");
+	        // Create a new padded map
+	        int[][] paddedMapData = new int[originalRows + 2][originalCols + 2];
 
-			int startCol = 0;
-			int startRow = 0;
+	        System.out.println("Loading map data with padding...");
 
-			for (int i = 0; i < rowNodes.getLength(); i++) {
-				String rowText = rowNodes.item(i).getTextContent().trim();
-				String[] rowValues = rowText.split(" ");
-				mapData[i] = new int[rowValues.length];
+	        int startCol = 0;
+	        int startRow = 0;
 
-				for (int j = 0; j < rowValues.length; j++) {
-					mapData[i][j] = Integer.parseInt(rowValues[j]);
-					if (mapData[i][j] == 2) {
-						startCol = j;
-						startRow = i;
-					}
-				}
+	        // Fill the new map with walls (1) as padding
+	        for (int i = 0; i < paddedMapData.length; i++) {
+	            for (int j = 0; j < paddedMapData[i].length; j++) {
+	                // Outer walls
+	                if (i == 0 || j == 0 || i == paddedMapData.length - 1 || j == paddedMapData[i].length - 1) {
+	                    paddedMapData[i][j] = 1;
+	                } else {
+	                    // Fill inner area with data from XML
+	                    String[] rowValues = rowNodes.item(i - 1).getTextContent().trim().split(" ");
+	                    paddedMapData[i][j] = Integer.parseInt(rowValues[j - 1]);
+	                    
+	                    // Detect player start point (value 2)
+	                    if (paddedMapData[i][j] == 2) {
+	                        startCol = j;
+	                        startRow = i;
+	                    }
+	                }
+	            }
+	        }
 
-				// Print the current row to the terminal
-				System.out.println(String.join(" ", rowValues));
-			}
+	        // Print map for debugging
+	        for (int[] row : paddedMapData) {
+	            for (int val : row) {
+	                System.out.print(val + " ");
+	            }
+	            System.out.println();
+	        }
 
-			// Extracted data
-			map = new Map(mapData); // Initialize map with the parsed map data
-			player = new Player((startCol * TILE_SIZE + TILE_SIZE / 2), (startRow * TILE_SIZE + TILE_SIZE / 2),
-					playerAngle); // Initialize player with the parsed angle
+	        // Initialize map and player
+	        map = new Map(paddedMapData);
+	        player = new Player((startCol * TILE_SIZE + TILE_SIZE / 2), (startRow * TILE_SIZE + TILE_SIZE / 2), playerAngle);
 
-			System.out.println("Level Data Loaded: ");
-			System.out.println("Grid Size: " + gridSize);
-			System.out.println("Player Angle: " + playerAngle);
-			System.out.println("startCol: " + startCol);
-			System.out.println("startRow: " + startRow);
-			System.out.println("startX: " + (startCol * TILE_SIZE + TILE_SIZE / 2));
-			System.out.println("startRow: " + (startRow * TILE_SIZE + TILE_SIZE / 2));
+	        System.out.println("Level Data Loaded: ");
+	        System.out.println("Original Grid Size: " + gridSize);
+	        System.out.println("Padded Grid Size: " + paddedMapData.length + "x" + paddedMapData[0].length);
+	        System.out.println("Player Angle: " + playerAngle);
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 	}
+
 
 	public void reloadLevelData() {
 		loadLevelData();

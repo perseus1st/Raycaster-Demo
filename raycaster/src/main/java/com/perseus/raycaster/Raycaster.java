@@ -22,14 +22,16 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 
 public class Raycaster extends Application {
 
-	private final int WIDTH = 750;
-	private final int HEIGHT = 550;
+	private int WIDTH = 750;
+	private int HEIGHT = 550;
 	private final int FOV = 60;
 	private final int TILE_SIZE = 100;
-	private final int WALL_HEIGHT_MULTIPLIER = (HEIGHT * 4) / 5;
+	private int WALL_HEIGHT_MULTIPLIER = (HEIGHT * 4) / 5;
 
 	private Canvas canvas;
 	private Player player;
@@ -43,37 +45,102 @@ public class Raycaster extends Application {
 	private String groundColor = "#717171";
 	private String skyColor = "#393939";
 
+	private Image goalTexture;
+	private PixelReader goalPixelReader;
+
 	private AnimationTimer timer;
+	
+	private long levelStartTime;
+	private double finalElapsedTime = -1;  // -1 indicates the game is not over yet
+	private PauseTransition pauseTransition;
 
 	@Override
 	public void start(Stage primaryStage) {
-		canvas = new Canvas(WIDTH, HEIGHT);
-		GraphicsContext gc = canvas.getGraphicsContext2D();
+	    canvas = new Canvas(WIDTH, HEIGHT);
+	    GraphicsContext gc = canvas.getGraphicsContext2D();
 
-		loadLevelData(); // Load level data from XML
+	    loadLevelData();
+	    levelStartTime = System.nanoTime(); // Start tracking time
 
-		switchWallTexture();
-		
-		timer = new AnimationTimer() {
-			@Override
-			public void handle(long now) {
-				updateMovement(primaryStage);
-				render(gc);
-			}
-		};
-		timer.start();
+	    switchWallTexture();
 
-		Scene scene = new Scene(new StackPane(canvas), WIDTH, HEIGHT);
+	    goalTexture = new Image(
+	            getClass().getResourceAsStream("/com/perseus/raycaster/textures/goal.png"));
+	    goalPixelReader = goalTexture.getPixelReader();
 
-		canvas.requestFocus();
+	    timer = new AnimationTimer() {
+	        @Override
+	        public void handle(long now) {
+	            updateMovement(primaryStage);
+	            
+	            if (player.getGameOver()) {
+	                if (finalElapsedTime < 0) {  // Record final time only once
+	                    long elapsedTimeNano = System.nanoTime() - levelStartTime;
+	                    finalElapsedTime = elapsedTimeNano / 1_000_000_000.0;  // Convert to seconds
+	                }
+	                renderLevelComplete(gc);
+	                
+	                startReturnToMenuTimer(primaryStage);
+	            } else {
+	                render(gc);
+	            }
+	        }
+	    };
+	    timer.start();
 
-		scene.setOnKeyPressed(this::handleKeyPressed);
-		scene.setOnKeyReleased(this::handleKeyReleased);
+	    StackPane root = new StackPane(canvas);
+	    Scene scene = new Scene(root, WIDTH, HEIGHT);
+	    
+	    // Only enable resizing if the game is not over
+	    scene.widthProperty().addListener((obs, oldVal, newVal) -> {
+	        if (!player.getGameOver()) {
+	            resizeWindow(primaryStage, newVal.doubleValue(), scene.getHeight());
+	        }
+	    });
+	    scene.heightProperty().addListener((obs, oldVal, newVal) -> {
+	        if (!player.getGameOver()) {
+	            resizeWindow(primaryStage, scene.getWidth(), newVal.doubleValue());
+	        }
+	    });
 
-		primaryStage.setTitle("JavaFX Raycaster");
-		primaryStage.setScene(scene);
-		primaryStage.show();
+	    canvas.requestFocus();
+
+	    scene.setOnKeyPressed(this::handleKeyPressed);
+	    scene.setOnKeyReleased(this::handleKeyReleased);
+
+	    primaryStage.setTitle("JavaFX Raycaster");
+	    primaryStage.setScene(scene);
+	    primaryStage.show();
 	}
+
+	// Start the 3-second delay before returning to the menu
+	private void startReturnToMenuTimer(Stage primaryStage) {
+	    if (pauseTransition == null) {
+	        // Create a pause transition that lasts 3 seconds
+	        pauseTransition = new PauseTransition(Duration.seconds(3));
+
+	        // Once the 3 seconds pass, return to the menu
+	        pauseTransition.setOnFinished(event -> returnToMenu(primaryStage));
+
+	        // Start the transition
+	        pauseTransition.play();
+	    }
+	}
+	
+	// Resize logic
+	private void resizeWindow(Stage primaryStage, double newWidth, double newHeight) {
+	    canvas.setWidth(newWidth);
+	    canvas.setHeight(newHeight);
+
+	    // Update rendering parameters
+	    WALL_HEIGHT_MULTIPLIER = (int) ((newHeight * 4) / 5);  // Dynamically adjust wall height
+	    WIDTH = (int) newWidth;
+	    HEIGHT = (int) newHeight;
+
+	    // Force re-render
+	    render(canvas.getGraphicsContext2D());
+	}
+
 
 	private void handleKeyPressed(KeyEvent event) {
 		keysPressed.add(event.getCode());
@@ -141,6 +208,25 @@ public class Raycaster extends Application {
 
 		castRays(gc);
 	}
+	
+	// Render the "Level Complete" screen
+	private void renderLevelComplete(GraphicsContext gc) {
+	    // Format elapsed time to 3 decimal places
+	    String formattedTime = String.format("%.3f", finalElapsedTime);
+
+	    // Clear the screen to black
+	    gc.setFill(Color.BLACK);
+	    gc.fillRect(0, 0, WIDTH, HEIGHT);
+
+	    // Draw "Level Complete" text in green
+	    gc.setFill(Color.LIMEGREEN);
+	    gc.setFont(javafx.scene.text.Font.font("Arial", 48));
+	    gc.fillText("LEVEL COMPLETE", WIDTH / 2 - 200, HEIGHT / 2 - 50);
+
+	    // Draw elapsed time in green
+	    gc.setFont(javafx.scene.text.Font.font("Arial", 24));
+	    gc.fillText("Time: " + formattedTime + " seconds", WIDTH / 2 - 120, HEIGHT / 2 + 20);
+	}
 
 	private void castRays(GraphicsContext gc) {
 		double rayAngle;
@@ -155,11 +241,32 @@ public class Raycaster extends Application {
 			rayAngle = player.getAngle() - Math.toRadians(FOV / 2) + x * rayStep;
 			Ray ray = new Ray(rayAngle);
 			ray.cast(map, player);
-
+			
 			double distance = ray.getDistance() * Math.cos(rayAngle - player.getAngle());
 
 			double wallHeight = (TILE_SIZE / distance) * WALL_HEIGHT_MULTIPLIER;
 
+			long roundX;
+			long roundY;
+
+			// This next block of code is to retrieve the proper tile calculated by the initial and final coordinates of the ray
+			
+			if (ray.getVerticalHit()) {
+			    if (ray.getInitialX() > ray.getFinalX()) {
+			        roundX = (long) ((ray.getFinalX() - TILE_SIZE) / TILE_SIZE);
+			    } else {
+			        roundX = (long) (ray.getFinalX() / TILE_SIZE);
+			    }
+			    roundY = (long) (ray.getFinalY() / TILE_SIZE);
+			} else {
+			    if (ray.getInitialY() > ray.getFinalY()) {
+			        roundY = (long) ((ray.getFinalY() - TILE_SIZE) / TILE_SIZE);
+			    } else {
+			        roundY = (long) (ray.getFinalY() / TILE_SIZE);
+			    }
+			    roundX = (long) (ray.getFinalX() / TILE_SIZE);
+			}
+			
 			int texX = ray.getVerticalHit() ? (int) ray.getWallHitY() : (int) ray.getWallHitX();
 			texX = Math.min(texX, (int) wallTexture.getWidth() - 1);
 
@@ -169,8 +276,13 @@ public class Raycaster extends Application {
 				if (drawY >= 0 && drawY < HEIGHT) {
 					int texY = (int) ((y / wallHeight) * wallTexture.getHeight());
 					texY = Math.min(texY, (int) wallTexture.getHeight() - 1);
-
-					Color color = pixelReader.getColor(texX, texY);
+					
+					Color color;
+					if (map.getTile((int) roundX, (int) roundY)==3) {
+						color = goalPixelReader.getColor(texX, texY);
+					} else {
+						color = pixelReader.getColor(texX, texY);
+					}
 
 					gc.setFill(color);
 					gc.fillRect(x, (int) Math.floor(drawY), pixelSize, 1);

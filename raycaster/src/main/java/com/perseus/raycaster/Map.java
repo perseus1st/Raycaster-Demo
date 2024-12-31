@@ -32,7 +32,7 @@ public class Map {
             return false;
         }
 
-        return layout[row][col] == 1;
+        return layout[row][col]%2 == 1;
     }
 
     public int getWidth() {
@@ -47,10 +47,20 @@ public class Map {
         if (x < 0 || y < 0 || x >= layout.length || y >= layout[0].length) {
             return -1;
         }
-        return layout[x][y]; 
+        return layout[y][x]; 
     }
 
     public int getTileSize() {
         return TILE_SIZE;
+    }
+    
+    public void printString() {
+    	for (int i = 0; i < layout.length; i++) {
+    		String row = "";
+    		for (int j = 0; j < layout[i].length; j++) {
+    			row += layout[i][j] + " ";
+    		}
+    		System.out.println(row);
+    	}
     }
 }

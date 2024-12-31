@@ -7,6 +7,7 @@ public class Player {
    private final int characterPadding = 5;
    private double animationTime = 0; // Time to control walking animation (sine wave y component)
    private final double animationSpeed = 0.15; // Controls the speed of the animation
+   private boolean gameOver = false;
    
    public Player(double x, double y, double angle) {
        this.x = x;
@@ -45,10 +46,16 @@ public class Player {
    
    private boolean isColliding(double testX, double testY, Map map) {
        // Check for collisions using padding
-       return map.isWall((int) testX + characterPadding, (int) testY) ||
-              map.isWall((int) testX - characterPadding, (int) testY) ||
-              map.isWall((int) testX, (int) testY + characterPadding) ||
-              map.isWall((int) testX, (int) testY - characterPadding);
+	   gameOver = (map.getTile(((int) testX + characterPadding)/100, (int) testY/100) == 3 ||
+		       map.getTile(((int) testX - characterPadding)/100, (int) testY/100) == 3 ||
+		       map.getTile((int) testX/100, ((int) testY + characterPadding)/100) == 3 ||
+		       map.getTile((int) testX/100, ((int) testY - characterPadding)/100) == 3);
+	   
+	   return (map.getTile(((int) testX + characterPadding)/100, (int) testY/100) == 1 ||
+		       map.getTile(((int) testX - characterPadding)/100, (int) testY/100) == 1 ||
+		       map.getTile((int) testX/100, ((int) testY + characterPadding)/100) == 1 ||
+		       map.getTile((int) testX/100, ((int) testY - characterPadding)/100) == 1);
+
    }
    public void rotateLeft() {
        this.angle -= rotationSpeed;
@@ -64,6 +71,10 @@ public class Player {
    }
    public double getAngle() {
        return angle;
+   }
+   
+   public boolean getGameOver() {
+	   return gameOver;
    }
 }
 

@@ -3,7 +3,7 @@ public class Player {
    private double x, y; // Player's position
    private double angle; // Player's viewing angle
    private final double speed = 2; // Movement speed
-   private final double rotationSpeed = Math.toRadians(0.5); // Rotation speed
+   private final double rotationSpeed = Math.toRadians(1); // Rotation speed
    private final int characterPadding = 5;
    private double animationTime = 0; // Time to control walking animation (sine wave y component)
    private final double animationSpeed = 0.15; // Controls the speed of the animation

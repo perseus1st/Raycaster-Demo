@@ -38,7 +38,7 @@ public class Raycaster extends Application {
 	private Map map;
 	private final Set<KeyCode> keysPressed = new HashSet<>();
 
-	private byte wallTextureTracker = 2;
+	private byte wallTextureTracker = 3;
 	private Image wallTexture;
 	private PixelReader pixelReader;
 	
@@ -53,7 +53,8 @@ public class Raycaster extends Application {
 	private long levelStartTime;
 	private double finalElapsedTime = -1;  // -1 indicates the game is not over yet
 	private PauseTransition pauseTransition;
-
+	private boolean gameOver = false;
+	
 	@Override
 	public void start(Stage primaryStage) {
 	    canvas = new Canvas(WIDTH, HEIGHT);
@@ -71,17 +72,19 @@ public class Raycaster extends Application {
 	    timer = new AnimationTimer() {
 	        @Override
 	        public void handle(long now) {
-	            updateMovement(primaryStage);
-	            
 	            if (player.getGameOver()) {
+	            	gameOver = true;
+	            }
+	            
+	            if (gameOver) {
 	                if (finalElapsedTime < 0) {  // Record final time only once
 	                    long elapsedTimeNano = System.nanoTime() - levelStartTime;
 	                    finalElapsedTime = elapsedTimeNano / 1_000_000_000.0;  // Convert to seconds
 	                }
 	                renderLevelComplete(gc);
-	                
 	                startReturnToMenuTimer(primaryStage);
 	            } else {
+	                updateMovement(primaryStage);
 	                render(gc);
 	            }
 	        }
@@ -367,6 +370,7 @@ public class Raycaster extends Application {
 
 
 	public void reloadLevelData() {
+		levelStartTime = System.nanoTime();
 		loadLevelData();
 		System.out.println("Level data reloaded.");
 	}

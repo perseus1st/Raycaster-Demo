@@ -101,7 +101,7 @@ public class LevelCreator {
             String input = gridSizeInput.getText();
             try {
                 int newSize = Integer.parseInt(input);
-                if (newSize > 1 && newSize <= 50) { // Ensure the size is within a valid range
+                if (newSize > 2 && newSize <= 50) { // Ensure the size is within a valid range
                     System.out.println("Grid size updated to: " + newSize);
                     showStatusMessage("Grid size updated to: " + newSize, false);
                     
@@ -116,8 +116,8 @@ public class LevelCreator {
                     // Update cell size dynamically
                     updateGridSize(gridPane, gridPane.getScene());
                 } else {
-                    System.out.println("Invalid grid size. Must be 2-50.");
-                    showStatusMessage("Invalid grid size. Must be 2-50.", true);
+                    System.out.println("Invalid grid size. Must be 3-50.");
+                    showStatusMessage("Invalid grid size. Must be 3-50.", true);
                 }
             } catch (NumberFormatException ex) {
                 System.out.println("Invalid input. Please enter a whole number.");

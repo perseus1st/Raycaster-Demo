@@ -114,7 +114,11 @@ public class Main extends Application {
     
     private void help() {
     	// code to "help"
-    	System.out.println("Helping...");
+    	System.out.println("Level Creator to change map");
+    	System.out.println("Play Level to play game");
+    	System.out.println("Find goal tile");
+    	System.out.println("Controls: W, A, S, D");
+    	System.out.println("R to restart, F to Change Style, ESC to exit level");
     }
 
     public static void main(String[] args) {

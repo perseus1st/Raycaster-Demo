@@ -7,6 +7,7 @@ import javafx.scene.layout.*;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.scene.Scene;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -171,7 +172,8 @@ public class LevelCreator {
         styleButton(helpButton);
         Tooltip helpTooltip = new Tooltip("Hover over controls to see their function.");
         Tooltip.install(helpButton, helpTooltip);
-
+        helpButton.setOnAction(e -> openHelpWindow());
+        
         statusLabel = new Label();
         statusLabel.setStyle("-fx-text-fill: red; -fx-font-size: 14px;");
 
@@ -209,7 +211,40 @@ public class LevelCreator {
         return scene;
     }
 
+    private void openHelpWindow() {
+        Stage helpStage = new Stage();
+        helpStage.setTitle("Help");
 
+        VBox helpLayout = new VBox(30);
+        helpLayout.setStyle("-fx-background-color: black; -fx-alignment: center;");
+
+        String[] helpMessages = {
+            "Level Creator",
+            "Choose Grid Size and click Apply",
+            "Pick Brush with Brush Picker",
+            "Click or hold LMB on tiles to paint",
+            "There must be one start point and at least one end point",
+            "There must be at least one path connecting start point to at least one end point",
+            "Choose player orientation (degrees) starting facing east",
+            "Reset to clear the board if needed",
+            "Export to save level",
+            "Once exported, Return to Menu and Play Level",
+        };
+
+        for (String message : helpMessages) {
+            Text helpText = new Text(message);
+            helpText.setFill(Color.LIME);
+            helpText.setStyle("-fx-font-size: 14px; -fx-text-alignment: center;");
+            StackPane lineContainer = new StackPane(helpText);
+            lineContainer.setPrefHeight(15);
+            helpLayout.getChildren().add(lineContainer);
+        }
+
+        Scene helpScene = new Scene(helpLayout, 500, 500);
+        helpStage.setScene(helpScene);
+        helpStage.show();
+    }    
+    
     // Helper methods for styling controls
     private void styleButton(Button button) {
         button.setStyle("-fx-background-color: black; -fx-text-fill: limegreen; -fx-border-color: limegreen; -fx-border-width: 2px;");

@@ -113,12 +113,32 @@ public class Main extends Application {
     }
     
     private void help() {
-    	// code to "help"
-    	System.out.println("Level Creator to change map");
-    	System.out.println("Play Level to play game");
-    	System.out.println("Find goal tile");
-    	System.out.println("Controls: W, A, S, D");
-    	System.out.println("R to restart, F to Change Style, ESC to exit level");
+        Stage helpStage = new Stage();
+        helpStage.setTitle("Help");
+
+        VBox helpLayout = new VBox(30);
+        helpLayout.setStyle("-fx-background-color: black; -fx-alignment: center;");
+
+        String[] helpMessages = {
+            "Create Level to change map",
+            "Play Level to play game",
+            "Objective: Find goal tile in shortest time possible",
+            "Controls: W, A, S, D",
+            "R to restart, F to Change Style, ESC to exit level"
+        };
+
+        for (String message : helpMessages) {
+            Text helpText = new Text(message);
+            helpText.setFill(Color.LIME);
+            helpText.setStyle("-fx-font-size: 18px; -fx-text-alignment: center;");
+            StackPane lineContainer = new StackPane(helpText);
+            lineContainer.setPrefHeight(20);
+            helpLayout.getChildren().add(lineContainer);
+        }
+
+        Scene helpScene = new Scene(helpLayout, 400, 400);
+        helpStage.setScene(helpScene);
+        helpStage.show();
     }
 
     public static void main(String[] args) {

@@ -46,11 +46,14 @@ public class Player {
    
    private boolean isColliding(double testX, double testY, Map map) {
        // Check for collisions using padding
+	   
+	   // If colliding with end point
 	   gameOver = (map.getTile(((int) testX + characterPadding)/100, (int) testY/100) == 3 ||
 		       map.getTile(((int) testX - characterPadding)/100, (int) testY/100) == 3 ||
 		       map.getTile((int) testX/100, ((int) testY + characterPadding)/100) == 3 ||
 		       map.getTile((int) testX/100, ((int) testY - characterPadding)/100) == 3);
 	   
+	   // If colliding with wall
 	   return (map.getTile(((int) testX + characterPadding)/100, (int) testY/100) == 1 ||
 		       map.getTile(((int) testX - characterPadding)/100, (int) testY/100) == 1 ||
 		       map.getTile((int) testX/100, ((int) testY + characterPadding)/100) == 1 ||

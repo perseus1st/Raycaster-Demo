@@ -1,8 +1,5 @@
 package com.perseus.raycaster;
 
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-
 public class Map {
     public static final int TILE_SIZE = 100;
 
@@ -11,19 +8,7 @@ public class Map {
     public Map(int[][] layout) {
         this.layout = layout;
     }
-
-    public void render(GraphicsContext gc) {
-        gc.setFill(Color.GRAY);
-
-        for (int row = 0; row < layout.length; row++) {
-            for (int col = 0; col < layout[row].length; col++) {
-                if (layout[row][col] == 1) { 
-                    gc.fillRect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE); 
-                }
-            }
-        }
-    }
-
+    
     public boolean isWall(int x, int y) {
         int col = x / TILE_SIZE;
         int row = y / TILE_SIZE;
@@ -32,6 +17,7 @@ public class Map {
             return false;
         }
 
+        // If the tile is 3 or 1
         return layout[row][col]%2 == 1;
     }
 
@@ -52,15 +38,5 @@ public class Map {
 
     public int getTileSize() {
         return TILE_SIZE;
-    }
-    
-    public void printString() {
-    	for (int i = 0; i < layout.length; i++) {
-    		String row = "";
-    		for (int j = 0; j < layout[i].length; j++) {
-    			row += layout[i][j] + " ";
-    		}
-    		System.out.println(row);
-    	}
     }
 }

@@ -89,6 +89,7 @@ public class Main extends Application {
         Scene scene = new Scene(root, 750, 500);
         scene.getStylesheets().add(getClass().getResource("/com/perseus/raycaster/style.css").toExternalForm());
 
+        // To prevent window from collapsing on itself
         primaryStage.setMinWidth(750);
         primaryStage.setMinHeight(550);
         primaryStage.setTitle("Raycaster_v2");
@@ -109,7 +110,6 @@ public class Main extends Application {
         LevelCreator levelCreator = new LevelCreator();
         Scene levelCreatorScene = levelCreator.createScene(primaryStage);
         primaryStage.setScene(levelCreatorScene);
-        System.out.println("Creating Level...");
     }
     
     private void help() {

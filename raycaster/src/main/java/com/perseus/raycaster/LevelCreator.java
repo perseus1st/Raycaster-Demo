@@ -83,7 +83,6 @@ public class LevelCreator {
         	} else if (newValue == endPointBrush) {
         		brush = 3;
         	}
-        	System.out.println("Brush switched to: " + brush); // Debugging
         	showStatusMessage("Brush switched to: " + brush, false);
         });
         
@@ -103,7 +102,6 @@ public class LevelCreator {
             try {
                 int newSize = Integer.parseInt(input);
                 if (newSize > 2 && newSize <= 50) { // Ensure the size is within a valid range
-                    System.out.println("Grid size updated to: " + newSize);
                     showStatusMessage("Grid size updated to: " + newSize, false);
                     
                     // Update GRID_SIZE and recreate gridData
@@ -117,11 +115,9 @@ public class LevelCreator {
                     // Update cell size dynamically
                     updateGridSize(gridPane, gridPane.getScene());
                 } else {
-                    System.out.println("Invalid grid size. Must be 3-50.");
                     showStatusMessage("Invalid grid size. Must be 3-50.", true);
                 }
             } catch (NumberFormatException ex) {
-                System.out.println("Invalid input. Please enter a whole number.");
                 showStatusMessage("Invalid input. Please enter a whole number.", true);
             }
         });
@@ -136,7 +132,6 @@ public class LevelCreator {
 
         orientationSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
             playerRotation = newValue; // Update playerRotation when spinner value changes
-            System.out.println("Player rotation updated to: " + playerRotation); // Debugging line
         	showStatusMessage("Player rotation updated to: " + playerRotation, false);
         });
         
@@ -150,6 +145,7 @@ public class LevelCreator {
         resetButton.setOnMouseExited(e -> resetButton.setStyle("-fx-background-color: black; -fx-text-fill: firebrick; -fx-border-color: firebrick;"));
         resetButton.setOnAction(e -> resetGrid());
         
+        // Export Button
         Button exportButton = new Button("Export");
         exportButton.setPrefWidth(180);
         exportButton.setPrefHeight(38);
@@ -416,17 +412,6 @@ public class LevelCreator {
             showStatusMessage("Error: No path from start point to end point.", true);
             return;
         }
-
-        // Proceed with export
-        System.out.println("Grid size: " + GRID_SIZE + "x" + GRID_SIZE);
-        System.out.println("Player rotation: " + playerRotation);
-        for (int row = 0; row < GRID_SIZE; row++) {
-            String debugPrint = "";
-            for (int col = 0; col < GRID_SIZE; col++) {
-                debugPrint += gridData[row][col] + " ";
-            }
-            System.out.println(debugPrint);
-        }
         exportToXML();
     }
 
@@ -513,11 +498,9 @@ public class LevelCreator {
             transformer.transform(source, result);
 
             showStatusMessage("Exported to " + filePath, false);
-            System.out.println("Exported to " + filePath);
         } catch (Exception e) {
             e.printStackTrace();
             showStatusMessage("Error exporting to XML.", true);
-            System.out.println("Error exporting to XML.");
         }
     }
     

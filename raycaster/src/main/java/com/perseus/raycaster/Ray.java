@@ -22,8 +22,9 @@ public class Ray {
         double y = initialY;
         int xbefore = 0;
 
-        double rayStepSize = 1;
+        double rayStepSize = 1; // "speed" of the ray
 
+        // While not wall or end point
         while (!map.isWall((int) x, (int) y)) {
             xbefore = (int) Math.floor(x / Map.TILE_SIZE);
 
@@ -31,6 +32,7 @@ public class Ray {
             y += Math.sin(angle) * rayStepSize;
         }
 
+        // Check if hit along x axis or y axis
         verticalHit = ((xbefore != Math.floor(x / Map.TILE_SIZE)));
 
         distance = Math.sqrt((x - player.getX()) * (x - player.getX()) + (y - player.getY()) * (y - player.getY()));

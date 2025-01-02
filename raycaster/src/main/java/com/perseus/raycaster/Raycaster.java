@@ -256,14 +256,14 @@ public class Raycaster extends Application {
 			
 			if (ray.getVerticalHit()) {
 			    if (ray.getInitialX() > ray.getFinalX()) {
-			        roundX = (long) ((ray.getFinalX() - TILE_SIZE) / TILE_SIZE);
+			        roundX = (long) (Math.round((ray.getFinalX() - TILE_SIZE)/(float) TILE_SIZE));
 			    } else {
 			        roundX = (long) (ray.getFinalX() / TILE_SIZE);
 			    }
 			    roundY = (long) (ray.getFinalY() / TILE_SIZE);
 			} else {
 			    if (ray.getInitialY() > ray.getFinalY()) {
-			        roundY = (long) ((ray.getFinalY() - TILE_SIZE) / TILE_SIZE);
+			        roundY = (long) (Math.round((ray.getFinalY() - TILE_SIZE)/(float) TILE_SIZE));
 			    } else {
 			        roundY = (long) (ray.getFinalY() / TILE_SIZE);
 			    }

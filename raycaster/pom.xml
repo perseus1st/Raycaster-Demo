@@ -36,6 +36,7 @@
                     <include>**/*.png</include>
                     <include>**/*.wav</include>
                     <include>**/*.xml</include>
+                    <include>**/*.css</include>
                 </includes>
             </resource>
         </resources>
